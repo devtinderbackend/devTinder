@@ -1,0 +1,20 @@
+{
+  "name": "devtinderappbackend",
+  "version": "1.0.0",
+  "description": "Tinder App For Develpoer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js",
+    "dev":"nodemon src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Harikesh Yadav",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
