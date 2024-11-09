@@ -25,19 +25,55 @@ const express = require("express");
 //creating express js application
 
 const app = express();
-
-//This function is request handler, now server is responding to the incoming request
-
-app.use("/test", (req,res)=>     //my app is listening on port number 3000 but it will only handle the request which has  /test, Then It will respond.
-
+app.get("/user",(req,res)=>
 {
-res.send("Hello From The Express Server ")   //sending response back
+    res.send({"firstName":"Harikesh", "lastName":"Yadav"})
 })
+
+app.post("/user",(req,res)=>
+{
+    //saving data to database
+    res.send("POST data saved successfully!")
+})
+
+app.delete("/user",(req,res)=>
+{
+    res.send("Delete data successfully!")
+})
+
+/*
+Example of route handler:
+(req, res) =
+{
+    res.send("Namastey Harikesh!")
+}
+*/
+
+// app.use("/", (req, res) =>              // This is / route
+// {
+//     res.send("Namastey Harikesh!")
+// })
+
+// app.use("/hello/2", (req, res) => {       // This is  /hello/2 route
+//     res.send("Hello Hello Hello 2")
+// })
+
+// app.use("/hello", (req, res) => {       // This is  /hello route
+//     res.send("Hello Hello")
+// })
+
+// //This function is request handler, now server is responding to the incoming request
+
+// app.use("/test", (req, res) =>     //my app is listening on port number 3000 but it will only handle the request which has  /test route, Then It will respond.
+
+// {
+//     res.send("Hello From The Express Server ")   //sending response back
+// })
 
 // Created a web server on port number 3000 and my app is listening on the server.
 
 
-app.listen(3000,()=>         //   call back function is only called once my server is running only
+app.listen(3000, () =>         //   call back function is only called once my server is running only
 {
     console.log("Server is successfully running on port number: 3000")
 })
