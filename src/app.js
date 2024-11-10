@@ -1,29 +1,29 @@
 const express = require("express");
 const app = express();
-const {adminAuth, userAuth}= require("./middlewares/auth") // Imported adminAuth and userAuth from auth.js file in middlewares folder
 
-app.use("/admin", adminAuth)       // we are using adminAuth for authentication as middleware to getallData
+// Generally we should handle errors on try, catch  block
 
-app.get("/user",userAuth,(req,res,next)=>    //we are using userAuth for Authentication as middleware for  user Login
+app.get("/getAllData",(req,res)=>
 {
-    console.log("User login Authenticated!")
-res.send("User Login Is Done")
-next();
-})
+    try {
+        // Logic for database and get data
+    throw new Error("unexpected error occure!");
+    res.send("get all user data");
 
-app.get("/admin/getAllData", (req,res,next)=>
-{
-    console.log("Admin Authenticated!")
-    res.send("Sent all data");
-    next();
-})
+    } catch (err) {
+     res.status(500).send("Some error contact to Admin")
+    }
+});
 
-app.delete("/admin/deleteUser",(req,res,next)=>
-{
-    console.log("Deleted user is authenticated!")
-res.send("Delete user")
-next();
-})
+//Some other feature to handle error like below, we should use, if error is not handled in try , catch. It should be handled in last of your application.
+
+app.use("/",(err,req,res,next)=>
+    {
+        if(err)
+        {
+            res.status(500).send("Something went wrong!");
+        }
+    })
 
 app.listen(3000, () => {
     console.log("Server is successfully running on port number: 3000")
