@@ -1,30 +1,31 @@
 const express = require("express");
 const app = express();
+const dbConnect = require("./config/database")
+const User = require("./models/user")    //imported user model
 
-// Generally we should handle errors on try, catch  block
-
-app.get("/getAllData",(req,res)=>
+//Create an API to add user into a database
+app.use(express.json())          //This is middleware, we will use for all API's to convert json object to javascript object for all route requests
+app.post("/signup", async(req,res)=>
 {
-    try {
-        // Logic for database and get data
-    throw new Error("unexpected error occure!");
-    res.send("get all user data");
+    //Below the hardcoded user object
+    // const user =new User({
+    //     firstName:"Prasad",
+    //     lastName:"PrasadYadav",
+    //     email:"prasad@gmail.com",
+    //     password:"prasad@123",
+    //     age:39,
+    // })
+    //Creating new Instance of user model
+    const user =new User(req.body)           // Getting dynamic user object inside req.body
+   await user.save();                        //saving user
+   res.send("User added successfully")
+})
 
-    } catch (err) {
-     res.status(500).send("Some error contact to Admin")
-    }
-});
-
-//Some other feature to handle error like below, we should use, if error is not handled in try , catch. It should be handled in last of your application.
-
-app.use("/",(err,req,res,next)=>
-    {
-        if(err)
-        {
-            res.status(500).send("Something went wrong!");
-        }
+dbConnect().then(() => {       //here first connect to database then listen to the server.once database connection is established then we do app.listen().
+    console.log("DataBase is Connected Successfully!")
+    app.listen(3000, () => {
+        console.log("Server is successfully running on port number: 3000")
     })
-
-app.listen(3000, () => {
-    console.log("Server is successfully running on port number: 3000")
+}).catch(err => {                //Handling error
+    console.error("Connection Not Established!")
 })
