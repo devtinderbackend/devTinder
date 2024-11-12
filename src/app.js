@@ -5,8 +5,7 @@ const User = require("./models/user")    //imported user model
 
 //Create an API to add user into a database
 app.use(express.json())          //This is middleware, we will use for all API's to convert json object to javascript object for all route requests
-app.post("/signup", async(req,res)=>
-{
+app.post("/signup", async (req, res) => {
     //Below the hardcoded user object
     // const user =new User({
     //     firstName:"Prasad",
@@ -16,9 +15,46 @@ app.post("/signup", async(req,res)=>
     //     age:39,
     // })
     //Creating new Instance of user model
-    const user =new User(req.body)           // Getting dynamic user object inside req.body
-   await user.save();                        //saving user
-   res.send("User added successfully")
+    const user = new User(req.body)           // Getting dynamic user object inside req.body
+    await user.save();                        //saving user
+    res.send("User added successfully")
+})
+
+//Get user by email
+
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.email;
+    try {
+        const user = await User.find({ email: userEmail });
+        if (!user) {
+            res.send("user not fount!");
+        }
+        else {
+            res.send(user);
+        }
+    }
+    catch (err) {
+        res.send("Something Went Wrong!")
+    }
+}
+)
+
+//Feed API, Get/feed - Get all the user's from database
+
+app.get("/feed", async (req, res) => {
+    try {
+        const user = await User.find({});
+        if (!user) {
+            res.status(400).send("User Not Found!")
+        }
+        else {
+            res.send(user)
+        }
+    }
+    catch (err) {
+        res.status(400).send("Something Went Wrong!")
+    }
+
 })
 
 dbConnect().then(() => {       //here first connect to database then listen to the server.once database connection is established then we do app.listen().
