@@ -54,7 +54,34 @@ app.get("/feed", async (req, res) => {
     catch (err) {
         res.status(400).send("Something Went Wrong!")
     }
+})
 
+// Delete User API
+
+app.delete("/user", async (req, res) => {
+    const userId = req.body._id;    //getting _id, which is provided by mongoose by default
+    console.log(userId);
+    try {
+        const user = await User.findByIdAndDelete(userId)     // Delete user by userId
+        res.send("User Deleted Successfully!")
+    }
+    catch (err) {
+        res.status(400).send("Something went wrong !")
+    }
+})
+
+//Update User API
+
+app.patch("/user", async (req, res) => {
+    const userId = req.body._id;      //getting user id, which is provided by mongoose by default
+    const data = req.body;            // user data, which is coming from end user to update
+    try {
+        const user = await User.findByIdAndUpdate({ _id: userId }, data)           // updating data, it will take userId and data, which we want to update
+        res.send("User Updated Successfully!")
+
+    } catch (error) {
+        res.status(400).send("Something went wrong !")
+    }
 })
 
 dbConnect().then(() => {       //here first connect to database then listen to the server.once database connection is established then we do app.listen().
