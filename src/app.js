@@ -15,9 +15,14 @@ app.post("/signup", async (req, res) => {
     //     age:39,
     // })
     //Creating new Instance of user model
-    const user = new User(req.body)           // Getting dynamic user object inside req.body
-    await user.save();                        //saving user
-    res.send("User added successfully")
+    try {
+        const user = new User(req.body)           // Getting dynamic user object inside req.body
+        await user.save();                        //saving user
+        res.send("User added successfully")
+
+    } catch (error) {
+        res.status(400).send("Send Proper Data!" + error.message)
+    }
 })
 
 //Get user by email
@@ -34,7 +39,7 @@ app.get("/user", async (req, res) => {
         }
     }
     catch (err) {
-        res.send("Something Went Wrong!")
+        res.send("Something Went Wrong!" + err.message)
     }
 }
 )
@@ -72,15 +77,44 @@ app.delete("/user", async (req, res) => {
 
 //Update User API
 
-app.patch("/user", async (req, res) => {
-    const userId = req.body._id;      //getting user id, which is provided by mongoose by default
-    const data = req.body;            // user data, which is coming from end user to update
+// app.patch("/user", async (req, res) => {
+//     const userId = req.body._id;      //getting user id, which is provided by mongoose by default
+//     const data = req.body;            // user data, which is coming from end user to update
+//     try {
+//         const user = await User.findByIdAndUpdate({ _id: userId }, data,{runValidators:true})           // updating data, it will take userId and data, which we want to update, runs the validatons using runValidators when update method will be called.
+//         res.send("User Updated Successfully!")
+
+//     } catch (error) {
+//         res.status(400).send("Date Updated Failed!"+ error.message)
+//     }
+// })
+
+app.patch("/user/:userId", async (req, res) => {
+    const userId = req.params?.userId;      //getting user id, which is coming from routes
+    const data = req.body;            // user data, which is coming from end user to update, do'nt believe on body, always validate before adding into database
     try {
-        const user = await User.findByIdAndUpdate({ _id: userId }, data)           // updating data, it will take userId and data, which we want to update
+        // Only we want to allow upate skills,age,gender,about.
+
+        const ALLOWED_UPDATES = ["skills", "age", "gender", "about"];
+
+        // using Object.keys, we will loop keys then checks every keys to ALLOWED_UPDATES includes.
+
+        const isAllowed = Object.keys(data).every((k) =>
+            ALLOWED_UPDATES.includes(k)
+        );
+        if (!isAllowed)       //If key is not matched whichever we want to update
+        {
+            throw new Error("upadate is not allowed")
+        }
+        if (data?.skills.length > 10)       //if skills fields length should not be more than 10
+        {
+            throw new Error("Can't add more than 10 skills")
+        }
+        const user = await User.findByIdAndUpdate({ _id: userId }, data, { runValidators: true })           // updating data, it will take userId and data, which we want to update, runs the validatons using runValidators when update method will be called.
         res.send("User Updated Successfully!")
 
     } catch (error) {
-        res.status(400).send("Something went wrong !")
+        res.status(400).send("Updated Failed!" + error.message)
     }
 })
 
