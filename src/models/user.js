@@ -13,7 +13,7 @@ const userSchema = mongoose.Schema({ /* we define schema, It tells you, what all
     lastName: {
         type: String,
     },
-    email: {
+    emailId: {
         type: String,
         required: true,         //Mandatory field
         trim: true,             //It will remove white spaces

@@ -2,35 +2,61 @@ const express = require("express");
 const app = express();
 const dbConnect = require("./config/database")
 const User = require("./models/user")    //imported user model
+const { validateSignUpData } = require("./utils/validations")
+const bcrypt = require("bcrypt");  // Imported to encrypt and hash password before we have to install using  npm i bcrypt
 
 //Create an API to add user into a database
 app.use(express.json())          //This is middleware, we will use for all API's to convert json object to javascript object for all route requests
 app.post("/signup", async (req, res) => {
-    //Below the hardcoded user object
-    // const user =new User({
-    //     firstName:"Prasad",
-    //     lastName:"PrasadYadav",
-    //     email:"prasad@gmail.com",
-    //     password:"prasad@123",
-    //     age:39,
-    // })
-    //Creating new Instance of user model
     try {
-        const user = new User(req.body)           // Getting dynamic user object inside req.body
-        await user.save();                        //saving user
+        /*  Validating the data which is coming from user */
+
+        validateSignUpData(req);// whatever request is coming, we will validate here
+
+        /*Encrypting the password*/
+
+        const { firstName, lastName, emailId, password } = req.body;  // Enjecting firstName,lastName,emailId,password from req body
+        const passwordHash = await bcrypt.hash(password, 10)     // hashing password
+        /* Creating new Instance of user model and saving user */
+
+        const user = new User({
+            firstName, lastName, emailId, password: passwordHash,           //expicitely add user's data which want to add in our databasde
+        })
+        await user.save();
         res.send("User added successfully")
 
     } catch (error) {
-        res.status(400).send("Send Proper Data!" + error.message)
+        res.status(400).send("Error!" + error.message)
     }
 })
+
+// Login API
+
+app.post("/login", async (req, res) => {
+    try {
+        const { emailId, password } = req.body;               //Enjecting emailId and password from req body which will be enter by end user
+        const user = await User.findOne({ emailId: emailId }); // find user by email
+        if (!user) {
+            throw new Error("Invalid Email!");               // if user not found then  throw error message
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);    // comparing password which is inside database and provided by end user
+        if (isPasswordValid) {
+            res.send("User Login Successfully!")     // if true then login
+        }
+        else {
+            throw new Error("Invaild Password!")  // throwing error if login fail
+        }
+    } catch (error) {
+        res.status(400).send("Error!:" + error.message)
+    }
+});
 
 //Get user by email
 
 app.get("/user", async (req, res) => {
-    const userEmail = req.body.email;
+    const userEmail = req.body.emailId;
     try {
-        const user = await User.find({ email: userEmail });
+        const user = await User.find({ emailId: userEmail });
         if (!user) {
             res.send("user not fount!");
         }
