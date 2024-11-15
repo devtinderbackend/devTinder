@@ -4,9 +4,12 @@ const dbConnect = require("./config/database")
 const User = require("./models/user")    //imported user model
 const { validateSignUpData } = require("./utils/validations")
 const bcrypt = require("bcrypt");  // Imported to encrypt and hash password before we have to install using  npm i bcrypt
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
 
 //Create an API to add user into a database
 app.use(express.json())          //This is middleware, we will use for all API's to convert json object to javascript object for all route requests
+app.use((cookieParser()))
 app.post("/signup", async (req, res) => {
     try {
         /*  Validating the data which is coming from user */
@@ -41,6 +44,11 @@ app.post("/login", async (req, res) => {
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);    // comparing password which is inside database and provided by end user
         if (isPasswordValid) {
+
+            //Create JWT token
+            const token = await jwt.sign({ _id: user._id }, "Rakesh@12kxjlx3")
+            console.log(token)
+            res.cookie("token", token);
             res.send("User Login Successfully!")     // if true then login
         }
         else {
@@ -50,6 +58,36 @@ app.post("/login", async (req, res) => {
         res.status(400).send("Error!:" + error.message)
     }
 });
+
+//Profile API
+
+app.get("/profile", async (req, res) => {
+    try {
+        const cookie = req.cookies;   // get cookie, whichever send by server after making successfull login
+        const { token } = cookie;   //enject cookie inside token
+
+        //check token
+        if (!token) {
+            throw new Error("Invalid Token!");
+        }
+
+        // validate token by jwt verify
+        const decodeMessage = await jwt.verify(token, "Rakesh@12kxjlx3");
+
+        // It return _id
+
+        const { _id } = decodeMessage;
+        const user = await User.findById(_id);     //find user by _id
+        if (!user) {
+            throw new Error("User Not Found !")
+        }
+        res.send(user)      //send user
+
+    } catch (error) {
+        res.status(400).send("Error!:", error.message)
+
+    }
+})
 
 //Get user by email
 
