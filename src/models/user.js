@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");     //Import mongoose
-const validator = require("validator")    // Import validator library to validate email,password,Url..., using predefined methods.
+const validator = require("validator")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")    // Import validator library to validate email,password,Url..., using predefined methods.
 const userSchema = mongoose.Schema({ /* we define schema, It tells you, what all
     infomation about user, we are storing in our database*/
 
@@ -78,6 +80,23 @@ const userSchema = mongoose.Schema({ /* we define schema, It tells you, what all
         timestamps: true,        // Set created date and updated date
     })
 
+// Create JWT Token
+
+userSchema.methods.getJWT = async function () {
+    const user = this;
+    const token = await jwt.sign({ _id: user._id }, "Rakesh@12kxjlx3", { expiresIn: "7d", })
+    return token;
+}
+
+// Validate Password, comparing password which is inside database and provided by end user.
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+    const user = this;
+    const hashPassword = user.password;
+    const isPasswordValid = await bcrypt.compare(passwordInputByUser, hashPassword);
+    return isPasswordValid;
+
+}
 // Create Mongoose model
 //Whenever we are referencing a model, name always start with capital latter.
 const User = mongoose.model("User", userSchema);

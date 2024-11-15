@@ -1,32 +1,30 @@
-const adminAuth = (req,res,next)=>
-{
-    const token="xyzxyzxyz!!!@@@###$$$";
-    const isAuthenticated= token ==="xyzxyzxyz!!!@@@###$$$";
-    if(!isAuthenticated)
+const jwt = require("jsonwebtoken");
+const User = require("../models/user")
+const userAuth = async (req,res,next)=>
     {
-        res.status(401).send("UnAuthorized Request For Admin");
-    }
-    else
-    {
+    try {
+        const cookie = req.cookies;  // get cookie, whichever send by server after making successfull login
+        const {token} =cookie;   //extract cookie inside token
+        if(!token)
+        {
+          throw new Error("Invalid token !!!!!")
+        }
+        const decodeObj = await jwt.verify(token, "Rakesh@12kxjlx3"); // validate token by jwt verify
+        const {_id} = decodeObj;  // It return _id
+        const user =  await User.findById(_id); //find user by _id
+        if(!user)
+        {
+            throw new Error("User Not Found!")
+        }
+        req.user =user;
         next();
-    }
-}
 
-const userAuth = (req,res,next)=>
-    {
-        const token="xyzxyzxyz!!!@@@###$$$";
-        const isAuthenticated= token ==="xyzxyzxyz!!!@@@###$$$";
-        if(!isAuthenticated)
-        {
-            res.status(401).send("UnAuthorized Request For User");
-        }
-        else
-        {
-            next();
-        }
+    } catch (error) {
+        res.status(400).send("Error!:" + error.message)
+
+    }
     }
 
 module.exports = {
-    adminAuth,
     userAuth
 }
