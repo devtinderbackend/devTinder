@@ -13,4 +13,13 @@ const validateSignUpData = (req) => {
         throw new Error("Invalid user!")
     }
 }
-module.exports = { validateSignUpData }
+
+// Validate profile data to update
+
+const validateEditProfileData = (req)=>
+{
+    const allowedEditField = ["gender","about","photoUrl","skills"]
+    const isEditAllowed = Object.keys(req.body).every(field=>allowedEditField.includes(field))
+    return isEditAllowed;
+}
+module.exports = { validateSignUpData, validateEditProfileData }
