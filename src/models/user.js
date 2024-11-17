@@ -99,5 +99,5 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
 }
 // Create Mongoose model
 //Whenever we are referencing a model, name always start with capital latter.
-const User = mongoose.model("User", userSchema);
+const User = new mongoose.model("User", userSchema);
 module.exports = User;
