@@ -2,6 +2,11 @@ const express = require("express");
 const app = express();
 const dbConnect = require("./config/database")
 const cookieParser = require("cookie-parser")
+const cros = require("cors")
+app.use(cros({
+    origin:"http://localhost:5173/login",
+    credentials:true
+}))
 app.use(express.json())
 app.use((cookieParser()))
 const authRouter = require("./routes/auth");
