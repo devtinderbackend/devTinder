@@ -10,10 +10,10 @@ const { validateSignUpData } = require("../utils/validations")
 authRouter.post("/signup", async (req, res) => {
     try {
         validateSignUpData(req);
-        const { firstName, lastName, emailId, password } = req.body;
+        const { firstName, lastName, emailId, password, gender, age } = req.body;
         const passwordHash = await bcrypt.hash(password, 10)
         const user = new User({
-            firstName, lastName, emailId, password: passwordHash,
+            firstName, lastName, gender, age, emailId, password: passwordHash,
         })
         await user.save();
         res.send("User added successfully")
